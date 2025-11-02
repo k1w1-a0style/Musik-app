@@ -1,19 +1,10 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
-import theme from './theme';
-
+import { View, Text } from 'react-native';
+import MusicLibrary from './music-library';
 export default function App() {
   return (
-    <View style={styles.container}>
-      <StatusBar style="light" />
+    <View>
+      <MusicLibrary />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#00FF00',
-  },
-});

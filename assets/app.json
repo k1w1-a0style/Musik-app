@@ -1,12 +1,3 @@
 {
-  "assets": [
-    {
-      "name": "icon",
-      "type": "image/png"
-    },
-    {
-      "name": "splash",
-      "type": "image/png"
-    }
-  ]
+  "icon": "icon.png"
 }

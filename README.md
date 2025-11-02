@@ -1,3 +1,2 @@
-# Musik Player
-
-Ein Musikplayer-App, erstellt mit Expo und React Native.
+# Musik-Player
+Eine Musik-App für mobile Geräte.
