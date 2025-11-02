@@ -1,0 +1,83 @@
+name: K1W1 Build Workflow
+on:
+  # NUR manuell durch unseren Bot auslösen
+  workflow_dispatch:
+    inputs:
+      job_id:
+        description: 'Die Supabase job_id'
+        required: true
+
+jobs:
+  run-eas-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Job ID from Input
+        id: get_job_id
+        run: |
+          JOB_ID="${{ github.event.inputs.job_id }}"
+          if [ -z "$JOB_ID" ]; then
+            echo "::error::Konnte Job-ID aus workflow_dispatch input nicht extrahieren."
+            exit 1
+          fi
+          echo "Extrahierte Job-ID: $JOB_ID"
+          echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Start EAS Build
+        id: eas_build
+        run: |
+          eas build --platform android --non-interactive --json > eas_output.json
+          echo "EAS JSON Output:"
+          cat eas_output.json
+          BUILD_ID=$(jq -r '.[0].id' eas_output.json)
+          if [ -z "$BUILD_ID" ] || [ "$BUILD_ID" == "null" ]; then
+            echo "::error::Konnte EAS Build ID nicht extrahieren."
+            exit 1
+          fi
+          echo "EAS Build ID: $BUILD_ID"
+          echo "eas_build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+
+      - name: Update Supabase Job Status
+        if: success()
+        env:
+          SUPABASE_URL: ${{ secrets.K1W1_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.K1W1_SUPABASE_SERVICE_ROLE_KEY }}
+          JOB_ID: ${{ steps.get_job_id.outputs.job_id }}
+          EAS_BUILD_ID: ${{ steps.eas_build.outputs.eas_build_id }}
+        run: |
+          echo "Aktualisiere Job $JOB_ID mit EAS Build ID $EAS_BUILD_ID"
+          curl -X PATCH "${SUPABASE_URL}/rest/v1/build_jobs?id=eq.${JOB_ID}" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"status\":\"building\",\"eas_build_id\":\"${EAS_BUILD_ID}\",\"github_run_id\":\"${{ github.run_id }}\"}"
+
+      - name: Handle EAS Start-Fehler
+        if: failure()
+        env:
+          SUPABASE_URL: ${{ secrets.K1W1_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.K1W1_SUPABASE_SERVICE_ROLE_KEY }}
+          JOB_ID: ${{ steps.get_job_id.outputs.job_id }}
+        run: |
+          echo "Fehler beim Starten von EAS. Aktualisiere Job $JOB_ID"
+          curl -X PATCH "${SUPABASE_URL}/rest/v1/build_jobs?id=eq.${JOB_ID}" \
+            -H "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "{\"status\":\"error\",\"eas_build_id\":\"EAS Start failed\",\"github_run_id\":\"${{ github.run_id }}\"}"
