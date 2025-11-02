@@ -1,6 +1,5 @@
 name: K1W1 Build Workflow
 on:
-  # NUR manuell durch unseren Bot auslösen
   workflow_dispatch:
     inputs:
       job_id:
@@ -10,7 +9,7 @@ on:
 jobs:
   run-eas-build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -34,14 +33,24 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
+          token: ${{ secrets.EXPO_TOKEN }} # Benutzt den EXPO_TOKEN
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      # --- NEUER SCHRITT: EAS Projekt erstellen/prüfen ---
+      - name: Run EAS project:create (to initialize project)
+        run: |
+          # Versucht, das EAS-Projekt zu erstellen. Wenn es bereits existiert,
+          # wird es einfach fortfahren und das Projekt im aktuellen Ordner verknüpfen.
+          eas project:init --non-interactive || true
+
+      # --- ENDE NEUER SCHRITT ---
+
       - name: Start EAS Build
         id: eas_build
         run: |
+          # Der Build kann jetzt ohne init in non-interactive ausgeführt werden.
           eas build --platform android --non-interactive --json > eas_output.json
           echo "EAS JSON Output:"
           cat eas_output.json
