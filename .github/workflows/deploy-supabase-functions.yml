@@ -88,4 +88,3 @@ jobs:
             -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
             -H "Content-Type: application/json" \
             -d "{\"status\":\"error\",\"eas_build_id\":\"EAS Start failed\",\"github_run_id\":\"${{ github.run_id }}\"}"
-
