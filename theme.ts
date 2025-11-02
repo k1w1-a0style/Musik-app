@@ -1,4 +1,4 @@
-import { Colors } from 'react-native';
-export default {
-  primary: '#00FF00'
+export const theme = {
+  primaryColor: '#00FF00',
+  secondaryColor: '#FFFFFF'
 };
