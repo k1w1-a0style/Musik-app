@@ -9,7 +9,7 @@ on:
 jobs:
   run-eas-build:
     runs-on: ubuntu-latest
-
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -33,19 +33,17 @@ jobs:
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }} # Benutzt den EXPO_TOKEN
+          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      # --- NEUER SCHRITT: EAS Projekt erstellen/prüfen ---
-      - name: Run EAS project:create (to initialize project)
+      # --- LÖSUNG: Projekt initialisieren falls nötig ---
+      - name: Run EAS project:init
         run: |
-          # Versucht, das EAS-Projekt zu erstellen. Wenn es bereits existiert,
-          # wird es einfach fortfahren und das Projekt im aktuellen Ordner verknüpfen.
+          # Führt init aus. Wenn das Projekt bereits auf expo.dev existiert,
+          # wird es einfach die Verknüpfung im Ordner bestätigen.
           eas project:init --non-interactive || true
-
-      # --- ENDE NEUER SCHRITT ---
 
       - name: Start EAS Build
         id: eas_build
@@ -90,3 +88,4 @@ jobs:
             -H "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
             -H "Content-Type: application/json" \
             -d "{\"status\":\"error\",\"eas_build_id\":\"EAS Start failed\",\"github_run_id\":\"${{ github.run_id }}\"}"
+
