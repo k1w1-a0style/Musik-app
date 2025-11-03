@@ -1,22 +1,18 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { theme } from './theme';
-
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { PlayerScreen } from './player';
+import { PlaylistScreen } from './playlist';
+import { MusicLibraryScreen } from './music-library';
+const Tab = createBottomTabNavigator();
 export default function App() {
   return (
-    <SafeAreaView style={styles.container}>
-      <Text>Musik-Player</Text>
-      <StatusBar style="auto" />
-    </SafeAreaView>
+    <NavigationContainer>
+      <Tab.Navigator>
+        <Tab.Screen name='Player' component={PlayerScreen} />
+        <Tab.Screen name='Playlist' component={PlaylistScreen} />
+        <Tab.Screen name='Music Library' component={MusicLibraryScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#00FF00',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }
-});
