@@ -1,12 +1,3 @@
-# Musik-Player
-Eine Musik-App für mobile Geräte.
+# Musik Player App
 
-## Features
-* Musikbibliothek
-* Musikplayer
-* Playlist-Verwaltung
-
-## Installation
-1. Clone das Repository
-2. Führe "npm install" oder "yarn install" aus
-3. Führe "expo start" aus
+Eine einfache Musik-Player-App, die es ermöglicht, Musik zu spielen und Playlists zu verwalten.
