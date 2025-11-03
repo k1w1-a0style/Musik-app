@@ -1,7 +1,8 @@
-export default {
-  expo: {
-    name: 'Musik-Player',
-    slug: 'musik-player',
+module.exports = {
+ expo: {
+    name: 'Musik Player',
+    slug: 'app-tek-k1w1',
+    platforms: ['ios', 'android'],
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
